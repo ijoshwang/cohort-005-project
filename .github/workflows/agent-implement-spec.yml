@@ -306,6 +306,19 @@ jobs:
       - name: Install Pi
         run: npm install -g @earendil-works/pi-coding-agent@1.5.2
 
+      - name: Cache agent-browser's Chrome
+        uses: actions/cache@v4
+        with:
+          path: ~/.agent-browser/browsers
+          key: agent-browser-0.27.0-${{ runner.os }}
+
+      - name: Install agent-browser
+        # The agent drives the app with it for screenshots and checks. Without
+        # it here, each run installs it mid-session.
+        run: |
+          npm install -g agent-browser@0.27.0
+          agent-browser install
+
       - name: Decompose the spec into a queue
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -411,6 +424,19 @@ jobs:
 
       - name: Install Pi
         run: npm install -g @earendil-works/pi-coding-agent@1.5.2
+
+      - name: Cache agent-browser's Chrome
+        uses: actions/cache@v4
+        with:
+          path: ~/.agent-browser/browsers
+          key: agent-browser-0.27.0-${{ runner.os }}
+
+      - name: Install agent-browser
+        # The agent drives the app with it for screenshots and checks. Without
+        # it here, each run installs it mid-session.
+        run: |
+          npm install -g agent-browser@0.27.0
+          agent-browser install
 
       - name: Migrate and seed the database
         run: |

@@ -1,5 +1,5 @@
 import { and, asc, desc, eq, or, sql } from "drizzle-orm";
-import { type RenderedComment } from "~/components/comment-thread";
+import type { RenderedComment } from "../comments";
 import { db } from "~/db";
 import {
   categories,

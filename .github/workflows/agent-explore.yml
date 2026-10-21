@@ -164,6 +164,21 @@ jobs:
           npm install -g @earendil-works/pi-coding-agent@1.5.2
           sh .sandcastle/agent-workflows/shared/setup-pi-subagents.sh
 
+      - name: Cache agent-browser's Chrome
+        if: steps.batch.outputs.numbers != '[]'
+        uses: actions/cache@v4
+        with:
+          path: ~/.agent-browser/browsers
+          key: agent-browser-0.27.0-${{ runner.os }}
+
+      - name: Install agent-browser
+        # The agent drives the app with it for screenshots and checks. Without
+        # it here, each run installs it mid-session.
+        if: steps.batch.outputs.numbers != '[]'
+        run: |
+          npm install -g agent-browser@0.27.0
+          agent-browser install
+
       - name: Explore
         if: steps.batch.outputs.numbers != '[]'
         env:
