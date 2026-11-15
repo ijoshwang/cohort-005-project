@@ -163,7 +163,13 @@ jobs:
       - name: Install Pi
         run: |
           npm install -g @earendil-works/pi-coding-agent@1.5.2
-          sh .sandcastle/agent-workflows/shared/setup-pi-subagents.sh
+          # The PR may predate this setup. Load it from the fetched base branch.
+          setup_dir="$RUNNER_TEMP/course-pi-subagents"
+          mkdir -p "$setup_dir/pi-agents"
+          for file in setup-pi-subagents.sh pi-agents/scout.pi-agent pi-agents/reviewer.pi-agent; do
+            git show "origin/${BASE_REF}:.sandcastle/agent-workflows/shared/$file" > "$setup_dir/$file"
+          done
+          sh "$setup_dir/setup-pi-subagents.sh"
 
       - name: Migrate and seed the database
         # The pre-commit hook runs on every commit the agent makes, and the
