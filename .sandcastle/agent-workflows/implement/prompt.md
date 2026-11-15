@@ -20,9 +20,6 @@ Read CODING_STANDARDS.md.
 - Leave `.github/` untouched.
 - When the change shows in the UI, save a before and an after screenshot as
   PNGs in /tmp/evidence/.
-- The model allows only one image input per minute in this project. Do not
-  view or send more than one screenshot to the model within 70 seconds. Avoid
-  extra visual checks; still save the required before and after PNGs.
 
 Write /tmp/pr-body.md in the voice of the `pr` skill: what the ticket asked
 for, what you built, what you deliberately left out. In its Evidence section,
