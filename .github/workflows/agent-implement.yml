@@ -132,6 +132,36 @@ jobs:
       - name: Install Pi
         run: npm install -g @earendil-works/pi-coding-agent@1.5.2
 
+      - name: Install browser for UI evidence
+        continue-on-error: true
+        timeout-minutes: 5
+        run: |
+          mkdir -p /tmp/evidence
+          npm install -g agent-browser@0.43.0
+          agent-browser install --with-deps
+
+      - name: Ensure screenshot upload support
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          if gh pr create --help | grep -- '--attach' > /dev/null; then
+            exit 0
+          fi
+          # GitHub CLI added --attach in 2.99.0. Use a pinned, verified
+          # release if the runner image is older.
+          version=2.103.3
+          archive="$RUNNER_TEMP/gh_${version}_linux_amd64.tar.gz"
+          curl --fail --location --silent --show-error --retry 3 \
+            "https://github.com/cli/cli/releases/download/v${version}/gh_${version}_linux_amd64.tar.gz" \
+            --output "$archive"
+          printf '%s  %s\n' \
+            4c806978ffce1cec70853302a56d70ac6da4f19bae7adca4e1a8ab00633dd91d \
+            "$archive" | sha256sum --check
+          tar -xzf "$archive" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/gh_${version}_linux_amd64/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/gh_${version}_linux_amd64/bin/gh" pr create --help | grep -- '--attach' > /dev/null
+
       - name: Configure Pi request retries
         # Sandcastle 0.14.0 treats Pi's intermediate agent retry errors as
         # final failures. Retry the API request before Pi emits that error.
@@ -249,13 +279,40 @@ jobs:
             echo "Nobody has read this yet. That is what the draft state is for."
           } >> "$body_file"
 
+          # Open the PR first. Local screenshot paths would not render if an
+          # upload later fails, so use readable placeholders until then.
+          safe_body_file=/tmp/pr-body-without-screenshots.md
+          sed -E 's@!\[[^]]*\]\(/tmp/evidence/[^)]*\.png\)@Screenshot unavailable@g' \
+            "$body_file" > "$safe_body_file"
           url="$(gh pr create \
             --draft \
             --base "${{ github.event.repository.default_branch }}" \
             --head "$BRANCH" \
             --title "$title" \
-            --body-file "$body_file")"
+            --body-file "$safe_body_file")"
           echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Add screenshots to the draft pull request
+        if: steps.pr.outputs.url != ''
+        continue-on-error: true
+        timeout-minutes: 3
+        env:
+          GH_TOKEN: ${{ secrets.FACTORY_PAT }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          attach=()
+          for png in /tmp/evidence/*.png; do attach+=(--attach "$png"); done
+          if [ "${#attach[@]}" -eq 0 ]; then
+            echo "No screenshots to attach."
+            exit 0
+          fi
+          if ! gh pr edit --help | grep -- '--attach' > /dev/null; then
+            echo "::warning::This runner's GitHub CLI cannot attach screenshots; the draft PR is available."
+            exit 0
+          fi
+          gh pr edit "$PR_URL" --body-file /tmp/pr-body.md "${attach[@]}"
 
       - name: Mark blocked on failure
         if: failure()
