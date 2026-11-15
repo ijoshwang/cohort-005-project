@@ -21,16 +21,18 @@ export const writeJson = (filename: string, value: unknown): void => {
   );
 };
 
-// The one agent every factory workflow runs. It authenticates with a Claude
-// subscription. To bill the API instead, pass ANTHROPIC_API_KEY here and in
-// the workflow's env in place of CLAUDE_CODE_OAUTH_TOKEN.
+// The one agent every factory workflow runs. Each workflow installs it and
+// passes it the repository secret below.
+// Agent: Pi
+// Install: npm install -g @earendil-works/pi-coding-agent@1.5.2
+// Secret: OPENAI_API_KEY
 //
 // Sandcastle runs every agent with its permission checks skipped, so it can
-// use any tool. Claude Code also accepts `permissionMode: "auto"` here for
-// AI-mediated approvals instead (Claude only; other agents don't offer it).
+// use any tool.
 export const claudeAgent = () =>
-  sandcastle.claudeCode("claude-opus-5-5", {
+  sandcastle.pi("openai/gpt-6.1-sol", {
+    thinking: "medium",
     env: {
-      CLAUDE_CODE_OAUTH_TOKEN: required("CLAUDE_CODE_OAUTH_TOKEN"),
+      OPENAI_API_KEY: required("OPENAI_API_KEY"),
     },
   });
