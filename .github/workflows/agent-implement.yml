@@ -137,17 +137,7 @@ jobs:
         # final failures. Retry the API request before Pi emits that error.
         run: |
           mkdir -p ~/.pi/agent
-          cat > ~/.pi/agent/settings.json <<'JSON'
-          {
-            "retry": {
-              "enabled": false,
-              "provider": {
-                "maxRetries": 4,
-                "maxRetryDelayMs": 60000
-              }
-            }
-          }
-          JSON
+          cp .sandcastle/agent-workflows/shared/pi-settings.json ~/.pi/agent/settings.json
 
       - name: Migrate and seed the database
         # The agent gets a real database, because half of this repo's checks
@@ -244,8 +234,6 @@ jobs:
           # GITHUB_TOKEN is not allowed to open a pull request, so
           # `gh pr create` with it fails. This step runs nothing the agent
           # wrote: it reads the agent's summary as text and hands it to `gh`.
-          # `--attach` uploads the agent's screenshots and swaps each matching
-          # /tmp/evidence path in the body for its URL. It needs a PAT too:
           # GITHUB_TOKEN is rejected.
           GH_TOKEN: ${{ secrets.FACTORY_PAT }}
         run: |
@@ -261,18 +249,12 @@ jobs:
             echo "Nobody has read this yet. That is what the draft state is for."
           } >> "$body_file"
 
-          # nullglob: no screenshots means no --attach, and the PR still opens.
-          shopt -s nullglob
-          attach=()
-          for png in /tmp/evidence/*.png; do attach+=(--attach "$png"); done
-
           url="$(gh pr create \
             --draft \
             --base "${{ github.event.repository.default_branch }}" \
             --head "$BRANCH" \
             --title "$title" \
-            --body-file "$body_file" \
-            "${attach[@]}")"
+            --body-file "$body_file")"
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Mark blocked on failure

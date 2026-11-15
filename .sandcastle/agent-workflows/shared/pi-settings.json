@@ -1,0 +1,9 @@
+{
+  "retry": {
+    "enabled": false,
+    "provider": {
+      "maxRetries": 4,
+      "maxRetryDelayMs": 60000
+    }
+  }
+}
