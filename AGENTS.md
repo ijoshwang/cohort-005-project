@@ -1,15 +1,3 @@
-## File and directory deletion
-
-For any agent-initiated deletion of files or directories, always use
-`/usr/bin/trash` so the action remains recoverable. Never permanently
-delete. If Trash cannot be used, stop and report the issue instead of falling
-back to permanent deletion.
-
-The default unit-test suite and mutation tests can permanently delete test
-files during cleanup. Do not run them until their cleanup can be made
-consistent with this rule. For unit tests, see
-`request-logger/config.test.ts` and `request-logger/config.ts`.
-
 ## Verification checks
 
 Do these checks in this order before you report a change to `app/` as complete:

@@ -5,8 +5,8 @@
 # lint-staged runs with --no-stash: its checks never write, and stashing would
 # change the working tree under the checks running beside it.
 
-# Keep these temporary logs instead of permanently deleting them.
 logs=$(mktemp -d)
+trap 'rm -rf "$logs"' EXIT
 
 run() {
   name=$1
