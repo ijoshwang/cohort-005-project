@@ -5,8 +5,10 @@ For any agent-initiated deletion of files or directories, always use
 delete. If Trash cannot be used, stop and report the issue instead of falling
 back to permanent deletion.
 
-The mutation-test tools normally delete temporary files. Do not run mutation
-tests until their cleanup can be made consistent with this rule.
+The default unit-test suite and mutation tests can permanently delete test
+files during cleanup. Do not run them until their cleanup can be made
+consistent with this rule. For unit tests, see
+`request-logger/config.test.ts` and `request-logger/config.ts`.
 
 ## Verification checks
 
