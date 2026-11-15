@@ -1,0 +1,53 @@
+name: Factory - Pi connectivity test
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Pi
+        run: npm install -g --ignore-scripts @earendil-works/pi-coding-agent@1.5.2
+
+      - name: Test the API connection
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$OPENAI_API_KEY"
+          pi -p --mode json --no-tools --no-session \
+            --model openai/gpt-6.1-sol --thinking medium \
+            "Reply with exactly FACTORY_PI_OK." > "$RUNNER_TEMP/pi-test.jsonl"
+          node --input-type=module - "$RUNNER_TEMP/pi-test.jsonl" <<'NODE'
+          import fs from "node:fs";
+          const events = fs.readFileSync(process.argv[2], "utf8").trim()
+            .split(/\r?\n/).map((line) => JSON.parse(line));
+          const end = events.filter((event) => event.type === "agent_end").at(-1);
+          const message = end?.messages?.filter((item) => item.role === "assistant").at(-1);
+          if (!message || message.stopReason === "error") {
+            console.error("The Pi API request did not complete successfully.");
+            if (message?.errorMessage) console.error(message.errorMessage);
+            process.exit(1);
+          }
+          const text = message.content.filter((item) => item.type === "text")
+            .map((item) => item.text).join("").trim();
+          if (text !== "FACTORY_PI_OK" || message.model !== "gpt-6.1-sol" || message.provider !== "openai") {
+            console.error("The response did not match the expected result or model.");
+            process.exit(1);
+          }
+          console.log("FACTORY_PI_OK");
+          console.log(JSON.stringify({
+            model: message.model,
+            provider: message.provider,
+            usage: message.usage
+          }));
+          NODE
