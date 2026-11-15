@@ -132,6 +132,23 @@ jobs:
       - name: Install Pi
         run: npm install -g @earendil-works/pi-coding-agent@1.5.2
 
+      - name: Configure Pi request retries
+        # Sandcastle 0.14.0 treats Pi's intermediate agent retry errors as
+        # final failures. Retry the API request before Pi emits that error.
+        run: |
+          mkdir -p ~/.pi/agent
+          cat > ~/.pi/agent/settings.json <<'JSON'
+          {
+            "retry": {
+              "enabled": false,
+              "provider": {
+                "maxRetries": 4,
+                "maxRetryDelayMs": 60000
+              }
+            }
+          }
+          JSON
+
       - name: Migrate and seed the database
         # The agent gets a real database, because half of this repo's checks
         # need one. It is disposable: a fresh one, migrated and seeded, on
