@@ -18,10 +18,10 @@ Read CODING_STANDARDS.md.
 - Finish with at least one commit and a clean working tree. The workflow
   pushes and opens the pull request.
 - Leave `.github/` untouched.
-- When the change shows in the UI, save a before and an after screenshot as
-  PNGs in /tmp/evidence/.
+- When the change shows in the UI, verify it with browser text snapshots and
+  interaction checks. Do not capture or read screenshots: this API project
+  currently rejects requests containing more than one input image.
 
 Write /tmp/pr-body.md in the voice of the `pr` skill: what the ticket asked
 for, what you built, what you deliberately left out. In its Evidence section,
-reference each screenshot by its absolute path, e.g.
-`![after](/tmp/evidence/after.png)`. The workflow uploads them.
+report the tests and browser checks you ran.
