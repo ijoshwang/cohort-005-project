@@ -1,0 +1,18 @@
+name: Factory - Codex connectivity test
+on:
+  issues:
+    types: [labeled]
+permissions: {}
+jobs:
+  trigger:
+    if: github.event.label.name == 'factory:codex-test' && github.actor == github.repository_owner && github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ask Codex to acknowledge the test
+        env:
+          GH_TOKEN: ${{ secrets.FACTORY_PAT }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body '@codex This is an automated factory connectivity test. Reply with FACTORY_TRIGGER_OK. Do not modify files, make commits, create branches, or open pull requests.'
