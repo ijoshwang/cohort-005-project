@@ -1,3 +1,10 @@
+## File cleanup
+
+When deleting existing user or repository files and directories, use
+`/usr/bin/trash`. If it is unavailable, stop and report the issue. Temporary
+files created by course tests, builds, installations, and CI jobs may be
+cleaned up normally.
+
 ## Verification checks
 
 Do these checks in this order before you report a change to `app/` as complete:
