@@ -7,6 +7,10 @@ Review it with the code-review skill, .agents/skills/code-review/SKILL.md:
 - spec: /tmp/review-spec.md
 - standards: CODING_STANDARDS.md
 
+For its parallel review, use Pi's `subagent` tool with two `reviewer`
+tasks in one call: one for Standards and one for Spec. Each gets a fresh
+context and the task-specific instructions from the skill.
+
 Leave the human reviewer as little as possible. Fix every finding you can on
 `{{BRANCH}}`, and commit each fix through the pre-commit hook. The workflow
 pushes your commits. Leave `.github/` untouched.

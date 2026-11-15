@@ -15,6 +15,8 @@ Read the GLOSSARY.md to understand the repo before exploring.
 
 Include filenames, and lines of code. Remember that the agent that implements will use your exploration as an input.
 
+Use Pi's `subagent` tool with the `scout` agent, passing all groups in one `tasks` call.
+
 3. DUPLICATES. Confirm a group from the code, not the wording. An issue that is the same bug, root cause or request as an older one gets `duplicate_of` set to the OLDEST (lowest number), which survives. Issues that need separate changes are related, not duplicates: both survive.
 
 4. COMMENT. Write one Markdown `comment` per issue.

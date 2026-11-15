@@ -160,7 +160,9 @@ jobs:
 
       - name: Install Pi
         if: steps.batch.outputs.numbers != '[]'
-        run: npm install -g @earendil-works/pi-coding-agent@1.5.2
+        run: |
+          npm install -g @earendil-works/pi-coding-agent@1.5.2
+          sh .sandcastle/agent-workflows/shared/setup-pi-subagents.sh
 
       - name: Explore
         if: steps.batch.outputs.numbers != '[]'

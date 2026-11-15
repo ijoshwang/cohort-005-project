@@ -161,7 +161,9 @@ jobs:
         run: npm ci
 
       - name: Install Pi
-        run: npm install -g @earendil-works/pi-coding-agent@1.5.2
+        run: |
+          npm install -g @earendil-works/pi-coding-agent@1.5.2
+          sh .sandcastle/agent-workflows/shared/setup-pi-subagents.sh
 
       - name: Migrate and seed the database
         # The pre-commit hook runs on every commit the agent makes, and the
