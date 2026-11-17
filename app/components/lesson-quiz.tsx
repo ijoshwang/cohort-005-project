@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
+import type { loadLesson } from "~/modules/lesson-page/index.server";
+
+type LessonQuiz = NonNullable<
+  Extract<Awaited<ReturnType<typeof loadLesson>>, { view: "full" }>["quiz"]
+>;
 
 import {
   CheckCircle2,
@@ -19,18 +24,7 @@ export function QuizSection({
   quizFetcher,
   isSubmitting,
 }: {
-  quiz: {
-    id: number;
-    title: string;
-    passingScore: number;
-    questions: Array<{
-      id: number;
-      questionText: string;
-      questionType: string;
-      position: number;
-      options: Array<{ id: number; optionText: string }>;
-    }>;
-  };
+  quiz: LessonQuiz;
   bestAttempt: { score: number; passed: boolean } | null;
   quizResult: {
     attemptId: number;
