@@ -43,6 +43,8 @@ import {
   getQuizByLessonId,
   getQuizWithQuestions,
 } from "./lib/quiz.server";
+const positiveIdSchema = z.coerce.number().int().positive();
+
 const createCommentSchema = z.object({
   intent: z.literal("create-comment"),
   body: z.string(),
@@ -414,10 +416,11 @@ export async function actOnLesson({ params, request }: LessonRequest) {
   }
 
   if (intent === "submit-quiz") {
-    const quizId = Number(formData.get("quizId"));
-    if (isNaN(quizId)) {
+    const parsedQuizId = positiveIdSchema.safeParse(formData.get("quizId"));
+    if (!parsedQuizId.success) {
       throw data("Invalid quiz ID", { status: 400 });
     }
+    const quizId = parsedQuizId.data;
     // Scope the quiz to this lesson so a quiz elsewhere can't be reached by
     // posting its id to this route.
     const quiz = db.select().from(quizzes).where(eq(quizzes.id, quizId)).get();
@@ -429,11 +432,14 @@ export async function actOnLesson({ params, request }: LessonRequest) {
     const selectedAnswers: Record<number, number> = {};
     for (const [key, value] of formData.entries()) {
       if (key.startsWith("question-")) {
-        const questionId = Number(key.replace("question-", ""));
-        const optionId = Number(value);
-        if (!isNaN(questionId) && !isNaN(optionId)) {
-          selectedAnswers[questionId] = optionId;
+        const questionId = positiveIdSchema.safeParse(
+          key.slice("question-".length)
+        );
+        const optionId = positiveIdSchema.safeParse(value);
+        if (!questionId.success || !optionId.success) {
+          throw data("Invalid quiz answer", { status: 400 });
         }
+        selectedAnswers[questionId.data] = optionId.data;
       }
     }
 
