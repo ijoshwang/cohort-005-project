@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "~/db";
 import {
   quizAnswers,
@@ -23,16 +23,27 @@ export function getQuizWithQuestions(quizId: number) {
     .orderBy(quizQuestions.position)
     .all();
 
-  const questionsWithOptions = questions.map((question) => {
-    const options = db
-      .select()
-      .from(quizOptions)
-      .where(eq(quizOptions.questionId, question.id))
-      .all();
-    return { ...question, options };
-  });
+  const options = getOptionsForQuestions(questions);
+  const questionsWithOptions = questions.map((question) => ({
+    ...question,
+    options: options.filter((option) => option.questionId === question.id),
+  }));
 
   return { ...quiz, questions: questionsWithOptions };
+}
+
+function getOptionsForQuestions(questions: Array<{ id: number }>) {
+  if (questions.length === 0) return [];
+  return db
+    .select()
+    .from(quizOptions)
+    .where(
+      inArray(
+        quizOptions.questionId,
+        questions.map((question) => question.id)
+      )
+    )
+    .all();
 }
 
 export function getBestAttempt(userId: number, quizId: number) {
@@ -81,6 +92,7 @@ export function computeResult(
       .orderBy(quizQuestions.position)
       .all();
 
+    const options = getOptionsForQuestions(questions);
     let correct = 0;
     const total = questions.length;
     const questionResults: QuestionResult[] = [];
@@ -99,28 +111,9 @@ export function computeResult(
         continue;
       }
 
-      let correctOptionId = null;
-      if (q.questionType === "multiple_choice") {
-        const opts = db
-          .select()
-          .from(quizOptions)
-          .where(eq(quizOptions.questionId, q.id))
-          .all();
-        const correctOpt = opts.find((o) => o.isCorrect === true);
-        correctOptionId = correctOpt ? correctOpt.id : null;
-      } else if (q.questionType === "true_false") {
-        const correctOpt = db
-          .select()
-          .from(quizOptions)
-          .where(
-            and(
-              eq(quizOptions.questionId, q.id),
-              eq(quizOptions.isCorrect, true)
-            )
-          )
-          .get();
-        correctOptionId = correctOpt ? correctOpt.id : null;
-      }
+      const correctOptionId =
+        options.find((option) => option.questionId === q.id && option.isCorrect)
+          ?.id ?? null;
 
       const isCorrect = selected === correctOptionId;
       if (isCorrect) correct++;
