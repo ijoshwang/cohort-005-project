@@ -130,28 +130,25 @@ export function computeResult(
     const passed = scoreValue > 0.7;
     const grade = calculateGrade(scoreValue);
 
-    const attempt = db
-      .insert(quizAttempts)
-      .values({
-        userId,
-        quizId,
-        score: scoreValue,
-        passed,
-      })
-      .returning()
-      .get();
-
-    for (const result of questionResults) {
-      if (result.selectedOptionId !== null) {
-        db.insert(quizAnswers)
-          .values({
-            attemptId: attempt.id,
-            questionId: result.questionId,
-            selectedOptionId: result.selectedOptionId,
-          })
-          .run();
+    const attempt = db.transaction((tx) => {
+      const created = tx
+        .insert(quizAttempts)
+        .values({ userId, quizId, score: scoreValue, passed })
+        .returning()
+        .get();
+      for (const result of questionResults) {
+        if (result.selectedOptionId !== null) {
+          tx.insert(quizAnswers)
+            .values({
+              attemptId: created.id,
+              questionId: result.questionId,
+              selectedOptionId: result.selectedOptionId,
+            })
+            .run();
+        }
       }
-    }
+      return created;
+    });
 
     return {
       attemptId: attempt.id,
