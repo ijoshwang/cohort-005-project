@@ -147,6 +147,12 @@
     },
     {
       "files": [
+        "app/components/lesson-navigation.tsx",
+        "app/components/lesson-quiz.tsx",
+        "app/components/lesson-viewer.tsx",
+        "app/modules/lesson-page/index.server.ts",
+        "app/modules/lesson-page/lib/queries.server.ts",
+        "app/modules/lesson-page/lib/quiz.server.ts",
         "app/components/comment-thread.tsx",
         "app/components/dev-ui.tsx",
         "app/components/monaco-markdown-editor.tsx",
@@ -233,7 +239,7 @@
     },
     {
       "files": [
-        "app/routes/courses.$slug.lessons.$lessonId.tsx",
+        "app/modules/lesson-page/index.server.ts",
         "request-logger/render.ts"
       ],
       "rules": {
