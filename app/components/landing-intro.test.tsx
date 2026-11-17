@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
-import { LandingIntro } from "../index";
+import { LandingIntro } from "./landing-intro";
 
 function render(totalCourses = 4, totalCategories = 5) {
   return renderToStaticMarkup(

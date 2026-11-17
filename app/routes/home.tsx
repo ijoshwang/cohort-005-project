@@ -12,7 +12,7 @@ import { CourseStatus } from "~/db/schema";
 import { BookOpen, ArrowRight, User, Moon, Sun } from "lucide-react";
 import { CourseImage } from "~/components/course-image";
 import { DevUI } from "~/components/dev-ui";
-import { LandingIntro } from "~/modules/landing-page";
+import { LandingIntro } from "~/components/landing-intro";
 import { getCurrentUserId, getDevCountry } from "~/lib/session";
 import { getCountryTierInfo, COUNTRIES } from "~/lib/ppp";
 import { eq, like, and, or, sql } from "drizzle-orm";

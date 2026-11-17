@@ -1,5 +1,6 @@
 import { ArrowRight, BookOpen, Check, GraduationCap } from "lucide-react";
 import { Link } from "react-router";
+import { Button } from "~/components/ui/button";
 
 type Totals = { totalCourses: number; totalCategories: number };
 
@@ -38,13 +39,12 @@ function Hero() {
         Structured courses built by experienced instructors. Track your
         progress, take quizzes, and build real-world skills.
       </p>
-      <Link
-        to="/courses"
-        className="mt-8 inline-flex h-10 items-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-      >
-        Browse Courses
-        <ArrowRight className="ml-2 size-4" aria-hidden="true" />
-      </Link>
+      <Button asChild size="lg" className="mt-8">
+        <Link to="/courses">
+          Browse Courses
+          <ArrowRight className="size-4" aria-hidden="true" />
+        </Link>
+      </Button>
     </div>
   );
 }
