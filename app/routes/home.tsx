@@ -9,17 +9,10 @@ import {
   CardHeader,
 } from "~/components/ui/card";
 import { CourseStatus } from "~/db/schema";
-import {
-  BookOpen,
-  GraduationCap,
-  Users,
-  ArrowRight,
-  User,
-  Moon,
-  Sun,
-} from "lucide-react";
+import { BookOpen, ArrowRight, User, Moon, Sun } from "lucide-react";
 import { CourseImage } from "~/components/course-image";
 import { DevUI } from "~/components/dev-ui";
+import { LandingIntro } from "~/modules/landing-page";
 import { getCurrentUserId, getDevCountry } from "~/lib/session";
 import { getCountryTierInfo, COUNTRIES } from "~/lib/ppp";
 import { eq, like, and, or, sql } from "drizzle-orm";
@@ -234,114 +227,72 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         </div>
       </header>
 
-      <section className="mx-auto max-w-6xl px-6 py-24 text-center">
-        <h1 className="text-5xl font-bold tracking-tight sm:text-6xl">
-          Learn to code,
-          <br />
-          <span className="text-muted-foreground">at your own pace</span>
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          Structured courses built by experienced instructors. Track your
-          progress, take quizzes, and build real-world skills.
-        </p>
-        <div className="mt-10 flex items-center justify-center gap-4">
-          <Button asChild size="lg">
-            <Link to="/courses">
-              Browse Courses
-              <ArrowRight className="ml-2 size-4" />
-            </Link>
-          </Button>
-        </div>
-      </section>
+      <main>
+        <LandingIntro
+          totalCourses={totalCourses}
+          totalCategories={totalCategories}
+        />
 
-      <section className="border-y border-border bg-muted/50 py-16">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 sm:grid-cols-3">
-          <div className="text-center">
-            <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-lg bg-primary/10">
-              <BookOpen className="size-6 text-primary" />
+        {featuredCourses.length > 0 && (
+          <section className="mx-auto max-w-6xl px-6 py-20">
+            <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 className="text-3xl font-bold tracking-tight">
+                  Featured Courses
+                </h2>
+                <p className="mt-2 text-muted-foreground">
+                  Start learning with our most popular courses
+                </p>
+              </div>
+              <Button asChild variant="outline">
+                <Link to="/courses">
+                  View all
+                  <ArrowRight className="ml-2 size-4" />
+                </Link>
+              </Button>
             </div>
-            <p className="text-2xl font-bold">{totalCourses}</p>
-            <p className="text-sm text-muted-foreground">Available Courses</p>
-          </div>
-          <div className="text-center">
-            <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-lg bg-primary/10">
-              <GraduationCap className="size-6 text-primary" />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {featuredCourses.map((course) => (
+                <Link
+                  key={course.id}
+                  to={`/courses/${course.slug}`}
+                  className="group"
+                >
+                  <Card className="h-full overflow-hidden pt-0 transition-shadow group-hover:shadow-md">
+                    <CourseImage
+                      src={course.coverImageUrl}
+                      alt={course.title}
+                      className="aspect-video w-full object-cover"
+                    />
+                    <CardHeader>
+                      <h3 className="font-semibold leading-snug group-hover:text-primary">
+                        {course.title}
+                      </h3>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="line-clamp-2 text-sm text-muted-foreground">
+                        {course.description}
+                      </p>
+                    </CardContent>
+                    <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <User className="size-3" />
+                        {course.instructorName ?? "Instructor"}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <BookOpen className="size-3" />
+                        {course.lessonCount} lessons
+                      </span>
+                    </CardFooter>
+                  </Card>
+                </Link>
+              ))}
             </div>
-            <p className="text-2xl font-bold">{totalCategories}</p>
-            <p className="text-sm text-muted-foreground">Categories</p>
-          </div>
-          <div className="text-center">
-            <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-lg bg-primary/10">
-              <Users className="size-6 text-primary" />
-            </div>
-            <p className="text-2xl font-bold">Self-paced</p>
-            <p className="text-sm text-muted-foreground">
-              Learn on your schedule
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {featuredCourses.length > 0 && (
-        <section className="mx-auto max-w-6xl px-6 py-20">
-          <div className="mb-10 flex items-end justify-between">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight">
-                Featured Courses
-              </h2>
-              <p className="mt-2 text-muted-foreground">
-                Start learning with our most popular courses
-              </p>
-            </div>
-            <Button asChild variant="outline">
-              <Link to="/courses">
-                View all
-                <ArrowRight className="ml-2 size-4" />
-              </Link>
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredCourses.map((course) => (
-              <Link
-                key={course.id}
-                to={`/courses/${course.slug}`}
-                className="group"
-              >
-                <Card className="h-full overflow-hidden pt-0 transition-shadow group-hover:shadow-md">
-                  <CourseImage
-                    src={course.coverImageUrl}
-                    alt={course.title}
-                    className="aspect-video w-full object-cover"
-                  />
-                  <CardHeader>
-                    <h3 className="font-semibold leading-snug group-hover:text-primary">
-                      {course.title}
-                    </h3>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="line-clamp-2 text-sm text-muted-foreground">
-                      {course.description}
-                    </p>
-                  </CardContent>
-                  <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <User className="size-3" />
-                      {course.instructorName ?? "Instructor"}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <BookOpen className="size-3" />
-                      {course.lessonCount} lessons
-                    </span>
-                  </CardFooter>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
+          </section>
+        )}
+      </main>
       <footer className="border-t border-border py-8">
-        <div className="mx-auto max-w-6xl px-6 text-center text-sm text-muted-foreground">
+        <div className="mx-auto max-w-6xl px-6 text-left text-sm text-muted-foreground">
           Cadence
         </div>
       </footer>
