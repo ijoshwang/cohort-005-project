@@ -109,7 +109,7 @@ export async function loadLesson({ params, request }: LessonRequest) {
 
   const { course, person, enrolled, view, take, manage } = decisions;
   const currentUserId = person?.id ?? null;
-  const lessonId = Number(params.lessonId);
+  const lessonId = positiveIdSchema.parse(params.lessonId);
 
   const courseWithDetails = getCourseWithDetails(course.id);
   const lesson = getLessonById(lessonId);
@@ -304,7 +304,7 @@ export async function actOnLesson({ params, request }: LessonRequest) {
     ref
   );
   const currentUserId = person.id;
-  const lessonId = Number(params.lessonId);
+  const lessonId = positiveIdSchema.parse(params.lessonId);
 
   if (
     intent === "create-comment" ||
